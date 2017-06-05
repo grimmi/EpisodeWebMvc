@@ -1,6 +1,7 @@
 namespace EpisodeWebMvc
 
 open System
+open System.Threading.Tasks
 
 type DecodeJob() =
     let id = Guid.NewGuid()
@@ -32,6 +33,13 @@ type DecodeJob() =
         with get () = jobDone
         and set(value) = jobDone <- value
 
+    member this.Run = async {
+        for i in [ 1 .. 10 ] do
+            let! x = (Task.Delay(1000) |> Async.AwaitTask)
+            this.ProgValue <- double(i * 10)
+            printfn "aktueller fortschritt: %f" this.ProgValue
+    }
+
 
 type JobService() = 
 
@@ -46,3 +54,4 @@ type JobService() =
         |_ -> let tmpJob = DecodeJob()
               tmpJob.Files <- files |> List.ofSeq
               currentJob <- Some tmpJob
+              tmpJob.Run |> ignore

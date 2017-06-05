@@ -10,6 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="JobService.fs" />
     <Compile Include="Controllers/*.fs" />
     <Compile Include="Startup.fs" />
     <Compile Include="Program.fs" />
@@ -22,6 +23,12 @@
     <PackageReference Include="FSharp.NET.Sdk" Version="1.0.*" PrivateAssets="All" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.0-preview1-final" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="FileProcessorCore">
+      <HintPath>F:\Git Repos\episodeweb\EpisodeWeb\FileProcessorCore\bin\Debug\netstandard1.6\FileProcessorCore.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
