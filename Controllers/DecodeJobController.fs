@@ -19,13 +19,12 @@ type DecodeJobController() =
     [<HttpGet>]
     member this.Get() =         
         let service = getService
-        let response = JObject()
         let job = service.CurrentJob
         match job with
-        |None -> response.Add("message", JToken.FromObject("no job running"))
-        |Some j ->  response.Add("id", JToken.FromObject(j.Id))
-                    response.Add("progress", JToken.FromObject(j.Progress))
-        response
+        |None -> let errResponse = JObject()
+                 errResponse.Add("message", JToken.FromObject("no job running"))
+                 errResponse
+        |Some j -> j.ToJson()
 
     [<HttpPost>]
     member this.Post(files: string) =
