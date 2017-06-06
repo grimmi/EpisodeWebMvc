@@ -2,6 +2,8 @@ namespace EpisodeWebMvc
 
 open System
 open System.Threading.Tasks
+open Newtonsoft.Json
+open Newtonsoft.Json.Linq
 
 type DecodeJob() =
     let id = Guid.NewGuid()
@@ -40,6 +42,14 @@ type DecodeJob() =
             printfn "aktueller fortschritt: %f" this.ProgValue
     }
 
+    member this.ToJson() =
+        let json = JObject()
+        json.Add("id", JToken.FromObject(this.Id))
+        json.Add("progress", JToken.FromObject(this.Progress))
+        json.Add("currentstep", JToken.FromObject(this.CurrentStep))
+
+        json
+
 
 type JobService() = 
 
@@ -54,4 +64,4 @@ type JobService() =
         |_ -> let tmpJob = DecodeJob()
               tmpJob.Files <- files |> List.ofSeq
               currentJob <- Some tmpJob
-              tmpJob.Run |> ignore
+              (tmpJob.Run |> Async.Start) |> ignore
