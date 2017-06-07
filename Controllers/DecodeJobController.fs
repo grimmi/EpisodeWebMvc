@@ -20,11 +20,7 @@ type DecodeJobController(jobService : JobService) =
         |Some j -> j.ToJson()
 
     [<HttpPost>]
-<<<<<<< HEAD
     member this.Post(files: string) =        
-=======
-    member this.Post(files: string) =
->>>>>>> test_work
         let ops = files.Split([|','|])
         service.Run ops
 
