@@ -36,10 +36,12 @@ type DecodeJob() =
         and set(value) = jobDone <- value
 
     member this.Run = async {
-        for i in [ 1 .. 10 ] do
-            let! x = (Task.Delay(1000) |> Async.AwaitTask)
-            this.ProgValue <- double(i * 10)
-            printfn "aktueller fortschritt: %f" this.ProgValue
+        for i in [0 .. (this.Files |> Seq.length) - 1] do
+            let! wait = Task.Delay(2000) |> Async.AwaitTask
+            let percent = (100. / double((this.Files |> Seq.length))) * double(i + 1)
+            this.ProgValue <- percent
+            this.CurrentStep <- this.Files.[i]
+            printfn "aktueller fortschritt: %f" this.Progress
         this.IsDone <- true
     }
 
