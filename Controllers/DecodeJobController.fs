@@ -6,7 +6,7 @@ open Newtonsoft.Json.Linq
 open Microsoft.AspNetCore.Mvc
 
 [<Route("api/decodejob")>]
-type DecodeJobController() =
+type DecodeJobController(jobService : JobService) =
     inherit Controller()
     static let mutable jobService:JobService option = None
 
