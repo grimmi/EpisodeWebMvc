@@ -40,6 +40,7 @@ type DecodeJob() =
             let! x = (Task.Delay(1000) |> Async.AwaitTask)
             this.ProgValue <- double(i * 10)
             printfn "aktueller fortschritt: %f" this.ProgValue
+        this.IsDone <- true
     }
 
     member this.ToJson() =
@@ -47,6 +48,7 @@ type DecodeJob() =
         json.Add("id", JToken.FromObject(this.Id))
         json.Add("progress", JToken.FromObject(this.Progress))
         json.Add("currentstep", JToken.FromObject(this.CurrentStep))
+        json.Add("done", JToken.FromObject(this.IsDone))
 
         json
 
