@@ -6,19 +6,12 @@ open Newtonsoft.Json.Linq
 open Microsoft.AspNetCore.Mvc
 
 [<Route("api/decodejob")>]
-type DecodeJobController() =
+type DecodeJobController(jobService : JobService) =
     inherit Controller()
-    static let mutable jobService:JobService option = None
-
-    let getService =
-        match jobService with
-        |None -> jobService <- Some(JobService())
-                 jobService.Value
-        |_ -> jobService.Value
+    let service = jobService
 
     [<HttpGet>]
     member this.Get() =         
-        let service = getService
         let job = service.CurrentJob
         match job with
         |None -> let errResponse = JObject()
@@ -27,9 +20,7 @@ type DecodeJobController() =
         |Some j -> j.ToJson()
 
     [<HttpPost>]
-    member this.Post(files: string) =
-        let service = getService
-        
+    member this.Post(files: string) =        
         let ops = files.Split([|','|])
         service.Run ops
 
