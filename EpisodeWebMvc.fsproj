@@ -10,6 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include=".\lib\OtrDecoder\*.fs" />
     <Compile Include="DecodeJob.fs" />
     <Compile Include="JobService.fs" />
     <Compile Include="Controllers/*.fs" />

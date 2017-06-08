@@ -4,6 +4,7 @@ open System
 open System.Threading.Tasks
 open Newtonsoft.Json
 open Newtonsoft.Json.Linq
+open OtrDecoder
 
 type DecodeJob() =
     let id = Guid.NewGuid()
@@ -12,6 +13,16 @@ type DecodeJob() =
     let mutable currentStep = ""
     let mutable jobDone = false
     let mutable files : string list = []
+
+
+    let getOptions =         
+        let options = DecodeOptions()
+        let otrConfig = System.IO.File.ReadAllLines("./otr.cfg")
+        options.DecoderPath <- otrConfig.[0]        
+        options.Email <- otrConfig.[1]              
+        options.OutputDirectory <- otrConfig.[2]    
+        options.Password <- otrConfig.[3]           
+        options
 
     member this.Id
         with get () = id
@@ -35,13 +46,15 @@ type DecodeJob() =
         with get () = jobDone
         and set(value) = jobDone <- value
 
+
     member this.Run = async {
-        for i in [0 .. (this.Files |> Seq.length) - 1] do
-            let! wait = Task.Delay(2000) |> Async.AwaitTask
-            let percent = (100. / double((this.Files |> Seq.length))) * double(i + 1)
-            this.ProgValue <- percent
-            this.CurrentStep <- this.Files.[i]
-            printfn "aktueller fortschritt: %f" this.Progress
+        let decoder = OtrFileDecoder()
+        for i in [ 0 .. (this.Files |> Seq.length) - 1] do
+            let file = this.Files.[i]
+            this.CurrentStep <- file
+            this.ProgValue <- (100. / float(this.Files |> Seq.length)) * float(i)
+            decoder.DecodeFile file getOptions |> ignore
+
         this.IsDone <- true
     }
 
