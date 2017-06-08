@@ -1,6 +1,7 @@
 namespace EpisodeWebMvc
 
 open System
+open System.IO
 open System.Threading.Tasks
 open Newtonsoft.Json
 open Newtonsoft.Json.Linq
@@ -17,7 +18,7 @@ type DecodeJob() =
 
     let getOptions =         
         let options = DecodeOptions()
-        let otrConfig = System.IO.File.ReadAllLines("./otr.cfg")
+        let otrConfig = File.ReadAllLines("./otr.cfg")        
         options.DecoderPath <- otrConfig.[0]        
         options.Email <- otrConfig.[1]              
         options.OutputDirectory <- otrConfig.[2]    

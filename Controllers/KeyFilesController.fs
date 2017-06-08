@@ -6,8 +6,6 @@ open Microsoft.AspNetCore.Mvc
 open Newtonsoft.Json
 open Newtonsoft.Json.Linq
 
-open TvApi
-
 [<Route("api/keyfiles")>]
 type KeyFilesController() =
     inherit Controller()
