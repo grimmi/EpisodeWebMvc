@@ -18,11 +18,15 @@ type DecodeJob() =
 
     let getOptions =         
         let options = DecodeOptions()
-        let otrConfig = File.ReadAllLines("./otr.cfg")        
-        options.DecoderPath <- otrConfig.[0]        
-        options.Email <- otrConfig.[1]              
-        options.OutputDirectory <- otrConfig.[2]    
-        options.Password <- otrConfig.[3]           
+        let otrConfig = File.ReadAllLines("./otr.cfg")
+                        |> Seq.choose(fun l -> match l.Split('=') with
+                                               |[|key;value|] -> Some (key, value)
+                                               |_ -> None)
+                        |> dict
+        options.DecoderPath <- otrConfig.["decoderpath"]        
+        options.Email <- otrConfig.["email"]              
+        options.OutputDirectory <- otrConfig.["outputpath"]    
+        options.Password <- otrConfig.["password"]           
         options
 
     member this.Id
