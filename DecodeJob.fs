@@ -6,6 +6,7 @@ open System.Threading.Tasks
 open Newtonsoft.Json
 open Newtonsoft.Json.Linq
 open OtrDecoder
+open ConfigReader
 
 type DecodeJob() =
     let id = Guid.NewGuid()
@@ -18,11 +19,7 @@ type DecodeJob() =
 
     let getOptions =         
         let options = DecodeOptions()
-        let otrConfig = File.ReadAllLines("./otr.cfg")
-                        |> Seq.choose(fun l -> match l.Split('=') with
-                                               |[|key;value|] -> Some (key, value)
-                                               |_ -> None)
-                        |> dict
+        let otrConfig = ReadConfigToDict("./otr.cfg")
         options.DecoderPath <- otrConfig.["decoderpath"]        
         options.Email <- otrConfig.["email"]              
         options.OutputDirectory <- otrConfig.["outputpath"]    
