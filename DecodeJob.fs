@@ -10,12 +10,6 @@ open ConfigReader
 
 type DecodeJob() =
     let id = Guid.NewGuid()
-    let mutable progValue = 0.
-    let mutable progress = 0m
-    let mutable currentStep = ""
-    let mutable jobDone = false
-    let mutable files : string list = []
-
 
     let getOptions =         
         let options = DecodeOptions()
@@ -29,25 +23,16 @@ type DecodeJob() =
     member this.Id
         with get () = id
 
+    member val internal ProgValue = 0. with get, set
+
     member this.Progress 
-        with get () = Decimal.Parse(progValue.ToString("N2"))
+        with get () = Decimal.Parse(this.ProgValue.ToString("N2"))
 
-    member internal this.ProgValue
-        with get () = progValue
-        and set (value) = progValue <- value
+    member val CurrentStep = "" with get, set
 
-    member this.CurrentStep
-        with get () = currentStep
-        and set (value) = currentStep <- value
+    member val Files : string list = [] with get, set
 
-    member this.Files
-        with get () = files
-        and set(value) = files <- value
-
-    member this.IsDone 
-        with get () = jobDone
-        and set(value) = jobDone <- value
-
+    member val IsDone = false with get, set
 
     member this.Run = async {
         let decoder = OtrFileDecoder()
