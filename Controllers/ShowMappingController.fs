@@ -19,6 +19,21 @@ type ShowMappingController() =
     let mutable showMappings = loadMappings
 
 
+    [<HttpGet>]
+    member this.Get() = 
+        let response = JObject()
+        let mappings = showMappings
+                       |> Seq.map(fun (parsed, mapped, id) -> let mapping = JObject()
+                                                              mapping.Add("parsed", JToken.FromObject(parsed))
+                                                              mapping.Add("mapped", JToken.FromObject(mapped))
+                                                              mapping.Add("tvdbid", JToken.FromObject(id))
+                                                              mapping)
+                       |> Array.ofSeq
+        response.Add("mappings", JToken.FromObject(mappings))
+        response
+                                                                
+            
+
     [<HttpPost>]
     member this.Post(parsed: string, mapped: string) = 
         showMappings <- showMappings |> Seq.append [(parsed, mapped, "")]
