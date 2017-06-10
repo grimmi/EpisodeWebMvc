@@ -1,5 +1,6 @@
 namespace EpisodeWebMvc.Controllers
 
+open EpisodeWebMvc
 open Newtonsoft.Json
 open Newtonsoft.Json.Linq
 open Microsoft.AspNetCore.Mvc
@@ -19,18 +20,20 @@ type ShowMappingController() =
     let mutable showMappings = loadMappings
 
     [<HttpGet>]
-    member this.Get() = 
-        let response = JObject()
-        let mappings = showMappings
-                       |> Seq.map(fun (parsed, mapped, id) -> let mapping = JObject()
-                                                              mapping.Add("parsed", JToken.FromObject(parsed))
-                                                              mapping.Add("mapped", JToken.FromObject(mapped))
-                                                              mapping.Add("tvdbid", JToken.FromObject(id))
-                                                              mapping)
-                       |> Array.ofSeq
-        response.Add("mappings", JToken.FromObject(mappings))
-        response
-                                                                
+    member this.Get(show:string) = 
+        let result = async{
+            let response = JObject()
+            let mappings = showMappings
+                           |> Seq.map(fun (parsed, mapped, id) -> let mapping = JObject()
+                                                                  mapping.Add("parsed", JToken.FromObject(parsed))
+                                                                  mapping.Add("mapped", JToken.FromObject(mapped))
+                                                                  mapping.Add("tvdbid", JToken.FromObject(id))
+                                                                  mapping)
+                           |> Array.ofSeq
+            response.Add("mappings", JToken.FromObject(mappings))
+            return response
+        }
+        result |> Async.RunSynchronously
             
 
     [<HttpPost>]
