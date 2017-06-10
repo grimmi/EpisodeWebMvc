@@ -52,3 +52,8 @@ type TvDbApi() =
         }
 
         get true
+
+    member this.SearchShow show = async{
+        let! response = this.GetAsync("/search/series?name=" + show)
+        return response
+    }

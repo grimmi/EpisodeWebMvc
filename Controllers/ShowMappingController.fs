@@ -22,18 +22,23 @@ type ShowMappingController() =
     [<HttpGet>]
     member this.Get(show:string) = 
         let result = async{
-            let response = JObject()
-            let mappings = showMappings
-                           |> Seq.map(fun (parsed, mapped, id) -> let mapping = JObject()
-                                                                  mapping.Add("parsed", JToken.FromObject(parsed))
-                                                                  mapping.Add("mapped", JToken.FromObject(mapped))
-                                                                  mapping.Add("tvdbid", JToken.FromObject(id))
-                                                                  mapping)
-                           |> Array.ofSeq
-            response.Add("mappings", JToken.FromObject(mappings))
-            return response
+            if String.IsNullOrWhiteSpace show then
+                let response = JObject()
+                let mappings = showMappings
+                               |> Seq.map(fun (parsed, mapped, id) -> let mapping = JObject()
+                                                                      mapping.Add("parsed", JToken.FromObject(parsed))
+                                                                      mapping.Add("mapped", JToken.FromObject(mapped))
+                                                                      mapping.Add("tvdbid", JToken.FromObject(id))
+                                                                      mapping)
+                               |> Array.ofSeq
+                response.Add("mappings", JToken.FromObject(mappings))
+                return response
+            else
+                let api = TvDbApi()
+                let! response = api.SearchShow show
+                return response
         }
-        result |> Async.RunSynchronously
+        result |> Async.RunSynchronously                                                                
             
 
     [<HttpPost>]
