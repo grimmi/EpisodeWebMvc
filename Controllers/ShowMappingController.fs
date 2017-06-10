@@ -18,6 +18,8 @@ type ShowMappingController() =
         |> Seq.filter(fun triple -> triple <> ("","",""))
     let mutable showMappings = loadMappings
 
+    let addMapping parsed mapped =
+        
 
     [<HttpGet>]
     member this.Get() = 
