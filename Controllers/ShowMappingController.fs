@@ -19,17 +19,20 @@ type ShowMappingController() =
         |> Seq.filter(fun triple -> triple <> ("","",""))
     let mutable showMappings = loadMappings
 
+    let mappingToJson (parsed, mapped, id) =
+        let mapping = JObject()
+        mapping.Add("parsed", JToken.FromObject(parsed))
+        mapping.Add("mapped", JToken.FromObject(mapped))
+        mapping.Add("tvdbid", JToken.FromObject(id))
+        mapping
+
     [<HttpGet>]
     member this.Get(show:string) = 
         let result = async{
             if String.IsNullOrWhiteSpace show then
                 let response = JObject()
                 let mappings = showMappings
-                               |> Seq.map(fun (parsed, mapped, id) -> let mapping = JObject()
-                                                                      mapping.Add("parsed", JToken.FromObject(parsed))
-                                                                      mapping.Add("mapped", JToken.FromObject(mapped))
-                                                                      mapping.Add("tvdbid", JToken.FromObject(id))
-                                                                      mapping)
+                               |> Seq.map mappingToJson
                                |> Array.ofSeq
                 response.Add("mappings", JToken.FromObject(mappings))
                 return response
