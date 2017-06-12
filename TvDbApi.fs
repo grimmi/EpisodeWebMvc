@@ -9,6 +9,8 @@ open System.Net.Http
 open System.Net.Http.Headers
 open System.Text
 
+type Episode = { airedEpisodeNumber: int; airedSeason: int; episodeName: string; firstAired: string }
+
 type TvDbApi() =
 
     let mutable loggedIn = false
@@ -56,4 +58,33 @@ type TvDbApi() =
     member this.SearchShow show = async{
         let! response = this.GetAsync("/search/series?name=" + show)
         return response
+    }
+
+    member this.GetEpisodes showId = async{
+
+        let getEpisodePage showId page = async{
+            let! response = this.GetAsync(sprintf "/series/%d/episodes?page=%d" showId page)
+            return response
+        }
+
+        let! firstPage = getEpisodePage showId 1
+        let lastPageNo = firstPage.["links"].Value<int>("last")
+
+        let pages = if lastPageNo > 1 then
+                        [ 2 .. lastPageNo ]
+                        |> Seq.map(fun p -> async { let! pageResult = getEpisodePage showId p
+                                                    return pageResult } |> Async.RunSynchronously)
+                        |> List.ofSeq
+                        |> List.append [firstPage]  
+                    else
+                        [firstPage]
+
+        return pages
+        |> Seq.collect(fun p -> p.["data"] |> Seq.choose(fun e -> 
+                                                        try
+                                                            Some(JsonConvert.DeserializeObject<Episode>(e.ToString()))
+                                                        with
+                                                            | :? Exception as ex -> None))
+                                                            
+        |> Seq.sortBy(fun ep -> (ep.airedSeason, ep.airedEpisodeNumber))
     }
