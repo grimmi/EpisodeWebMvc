@@ -48,6 +48,9 @@ type TvDbApi() =
         sprintf "%d *** %d *** %s *** %s" episode.airedSeason episode.airedEpisodeNumber episode.firstAired episode.episodeName
     
     let cacheEpisodes episodes showId= 
+        if not (Directory.Exists "./showcache") then
+            Directory.CreateDirectory("./showcache") |> ignore
+
         let cachePath = sprintf "./showcache/%d.cache" showId
         File.WriteAllLines(cachePath, episodes |> Seq.map serializeEpisode, Encoding.UTF8)
 
@@ -60,7 +63,7 @@ type TvDbApi() =
 
     member private this.LoadEpisodesFromApi(showId) = async {
 
-        let getEpisodePage showId page = async{
+        let getEpisodePage showId page : Async<JObject>= async{
             let! response = this.GetAsync(sprintf "/series/%d/episodes?page=%d" showId page)
             return response
         }
