@@ -4,6 +4,7 @@ open ConfigReader
 open Newtonsoft.Json
 open Newtonsoft.Json.Linq
 open System
+open System.IO
 open System.Net
 open System.Net.Http
 open System.Net.Http.Headers
@@ -38,29 +39,26 @@ type TvDbApi() =
         apiClient.DefaultRequestHeaders.Authorization <- AuthenticationHeaderValue("Bearer", token)
         loggedIn <- true
 
-    member this.GetAsync uri = 
-        let rec get retry = async{
-            if not loggedIn then
-                login
-            let request = new HttpRequestMessage(HttpMethod.Get, Uri(apiUrl + uri))
-            let! response = (apiClient.SendAsync(request) |> Async.AwaitTask)
-            if response.StatusCode = HttpStatusCode.Unauthorized && retry then
-                login
-                let! result = get false
-                return result
-            else 
-                let! responseString = (response.Content.ReadAsStringAsync() |> Async.AwaitTask)
-                return JObject.Parse(responseString)
-        }
+    let deserializeEpisode (line:string) =
+        match line.Split([|"***"|], StringSplitOptions.RemoveEmptyEntries) with
+        |[|season;epno;aired;epname|] -> Some { airedSeason = (season |> int); airedEpisodeNumber = (epno |> int); firstAired = aired; episodeName = epname }
+        |_ -> None
 
-        get true
+    let serializeEpisode episode = 
+        sprintf "%d *** %d *** %s *** %s" episode.airedSeason episode.airedEpisodeNumber episode.firstAired episode.episodeName
+    
+    let cacheEpisodes episodes showId= 
+        let cachePath = sprintf "./showcache/%d.cache" showId
+        File.WriteAllLines(cachePath, episodes |> Seq.map serializeEpisode, Encoding.UTF8)
 
-    member this.SearchShow show = async{
-        let! response = this.GetAsync("/search/series?name=" + show)
-        return response
-    }
+    let loadEpisodesFromCache showId =
+        let cachePath = sprintf "./showcache/%d.cache" showId
+        match File.Exists cachePath with
+        |true -> Some(File.ReadAllLines cachePath
+                      |> Seq.choose deserializeEpisode)
+        |_ -> None
 
-    member this.GetEpisodes showId = async{
+    member private this.LoadEpisodesFromApi(showId) = async {
 
         let getEpisodePage showId page = async{
             let! response = this.GetAsync(sprintf "/series/%d/episodes?page=%d" showId page)
@@ -87,4 +85,35 @@ type TvDbApi() =
                                                             | :? Exception as ex -> None))
                                                             
         |> Seq.sortBy(fun ep -> (ep.airedSeason, ep.airedEpisodeNumber))
+    }
+
+    member this.GetAsync uri = 
+        let rec get retry = async{
+            if not loggedIn then
+                login
+            let request = new HttpRequestMessage(HttpMethod.Get, Uri(apiUrl + uri))
+            let! response = (apiClient.SendAsync(request) |> Async.AwaitTask)
+            if response.StatusCode = HttpStatusCode.Unauthorized && retry then
+                login
+                let! result = get false
+                return result
+            else 
+                let! responseString = (response.Content.ReadAsStringAsync() |> Async.AwaitTask)
+                return JObject.Parse(responseString)
+        }
+
+        get true
+
+    member this.SearchShow show = async{
+        let! response = this.GetAsync("/search/series?name=" + show)
+        return response
+    }
+
+    member this.GetEpisodes showId = async{
+        let cachedEpisodes = loadEpisodesFromCache showId
+        match cachedEpisodes with
+        |Some episodes -> return episodes
+        |None -> let! apiEpisodes = this.LoadEpisodesFromApi(showId)
+                 cacheEpisodes apiEpisodes showId
+                 return apiEpisodes
     }
