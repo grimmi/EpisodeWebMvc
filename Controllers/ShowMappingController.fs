@@ -19,6 +19,10 @@ type ShowMappingController(api: TvDbApi) =
                                      |[|parsed; mapped; id|] -> (parsed.Trim(),mapped.Trim(),id.Trim())
                                      |_ -> ("","",""))
         |> Seq.filter(fun triple -> triple <> ("","",""))
+
+    let cacheShow parsed mapped id =
+        File.AppendAllText("./shows.map", (sprintf "%s *** %s *** %d" parsed mapped id))
+
     let mutable showMappings = loadMappings
 
     let mappingToJson (parsed, mapped, id) =
@@ -39,16 +43,16 @@ type ShowMappingController(api: TvDbApi) =
                 response.Add("mappings", JToken.FromObject(mappings))
                 return response
             else
-                let api = TvDbApi()
-                let! response = api.SearchShow show
+                let! response = dbApi.SearchShow show
                 return response
         }
         result |> Async.RunSynchronously                                                                
             
 
     [<HttpPost>]
-    member this.Post(parsed: string, mapped: string) = 
-        showMappings <- showMappings |> Seq.append [(parsed, mapped, "")]
+    member this.Post(parsed: string, mapped: string, id: int) = 
+        cacheShow parsed mapped id
+        showMappings <- showMappings |> Seq.append [(parsed, mapped, (id |> string))]
         let response = JObject()
         response.Add("message", JToken.FromObject(sprintf "added mapping: %s --> %s" parsed mapped))
         response
