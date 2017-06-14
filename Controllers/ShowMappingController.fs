@@ -8,8 +8,10 @@ open System
 open System.IO
 
 [<Route("api/showmapping")>]
-type ShowMappingController() =
+type ShowMappingController(api: TvDbApi) =
     inherit Controller()
+
+    let dbApi = api
 
     let loadMappings = 
         File.ReadAllLines("./shows.map")

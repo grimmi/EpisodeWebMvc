@@ -29,6 +29,7 @@ type Startup private () =
     member this.ConfigureServices(services: IServiceCollection) =
         // Add framework services.
         services.AddSingleton(JobService()) |> ignore
+        services.AddSingleton(TvDbApi()) |> ignore
         services.AddMvc() |> ignore
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
