@@ -10,7 +10,6 @@ open Microsoft.Extensions.Configuration
 open Microsoft.Extensions.DependencyInjection
 open Microsoft.Extensions.Logging
 
-
 type Startup private () =
 
     new (env: IHostingEnvironment) as this =
@@ -28,6 +27,7 @@ type Startup private () =
     // This method gets called by the runtime. Use this method to add services to the container.
     member this.ConfigureServices(services: IServiceCollection) =
         // Add framework services.
+        services.AddSingleton(this.Configuration) |> ignore
         services.AddSingleton(JobService()) |> ignore
         services.AddSingleton(TvDbApi()) |> ignore
         services.AddMvc() |> ignore
