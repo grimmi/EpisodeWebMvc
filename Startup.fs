@@ -30,6 +30,7 @@ type Startup private () =
         services.AddSingleton(this.Configuration) |> ignore
         services.AddSingleton(JobService()) |> ignore
         services.AddSingleton(TvDbApi()) |> ignore
+        services.Configure<DirectoryOptions>(this.Configuration) |> ignore        
         services.AddMvc() |> ignore
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
