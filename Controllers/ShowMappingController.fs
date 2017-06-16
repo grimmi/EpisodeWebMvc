@@ -32,6 +32,18 @@ type ShowMappingController(api: TvDbApi) =
         mapping.Add("tvdbid", JToken.FromObject(id))
         mapping
 
+    let showToJson (show:Show) =
+        let json = JObject()
+        json.Add("tvdbid", JToken.FromObject(show.id))
+        json.Add("name", JToken.FromObject(show.seriesName))
+        json
+
+    let showsToJson (shows:seq<Show>) =
+        let json = JObject()
+        let showsJson = shows |> Seq.map showToJson |> Array.ofSeq
+        json.Add("shows", JToken.FromObject(showsJson))
+        json
+
     [<HttpGet>]
     member this.Get(show:string) = 
         let result = async{
@@ -40,8 +52,8 @@ type ShowMappingController(api: TvDbApi) =
                 response.Add("mappings", JToken.FromObject(showMappings |> Seq.map mappingToJson))
                 return response
             else
-                let! response = dbApi.SearchShow show
-                return response
+                let! shows = dbApi.SearchShow show
+                return showsToJson shows
         }
         result |> Async.RunSynchronously                                                                
             

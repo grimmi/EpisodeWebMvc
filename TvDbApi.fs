@@ -12,7 +12,7 @@ open System.Text
 
 type Episode = { airedEpisodeNumber: int; airedSeason: int; episodeName: string; firstAired: string }
 
-type Show = { name: string }
+type Show = { seriesName: string; id: int; }
 
 type TvDbApi() =
 
@@ -112,7 +112,8 @@ type TvDbApi() =
 
     member this.SearchShow show = async{
         let! response = this.GetAsync("/search/series?name=" + show)
-        return response
+        let dbShows = JsonConvert.DeserializeObject<seq<Show>>(response.["data"].ToString())
+        return dbShows
     }
 
     member this.GetEpisodes showId = async{
