@@ -24,16 +24,12 @@ type ParseController(api:TvDbApi) =
                                            |'_' -> ' '
                                            |_ -> c))
 
-    [<HttpGet>]
-    member this.Get(file:string) = 
+    let getShowInfo file =
         let getInfo = async{
             let parsedShow = parseShowName file
-            if parsedShow.IsNone then
-                return ("", "")
-            else 
-                let dbShow = match parsedShow with
-                             |None -> None
-                             |Some name -> 
+            let dbShow = match parsedShow with
+                         |None -> None
+                         |Some name -> 
                                 let dbResult = async {
                                     let! dbShows = api.SearchShow name
                                     match dbShows |> Seq.length with
@@ -41,11 +37,19 @@ type ParseController(api:TvDbApi) =
                                     |_ -> return None
                                 }
                                 (dbResult |> Async.RunSynchronously)
-                let dbShowName = match dbShow with
-                                 |None -> "<not found>"
-                                 |Some show -> show.seriesName
-                return (parsedShow.Value, dbShowName)
+                             
+            return (parsedShow, dbShow)
         }
 
         let result = (getInfo |> Async.RunSynchronously)
         result
+
+    [<HttpGet>]
+    member this.Get(file:string) = 
+        let showInfo = getShowInfo file
+        let unknownShow = {seriesName = "unknown"; id = -1}
+
+        match showInfo with
+        |(Some parsed, Some show) -> (parsed, show)
+        |(Some parsed, _) -> (parsed, unknownShow)
+        |(_, _) -> ("<unable to parse showname>", unknownShow)

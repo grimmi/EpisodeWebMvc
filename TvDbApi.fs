@@ -120,13 +120,16 @@ type TvDbApi() =
                 login
             let request = new HttpRequestMessage(HttpMethod.Get, Uri(apiUrl + uri))
             let! response = (apiClient.SendAsync(request) |> Async.AwaitTask)
-            if response.StatusCode = HttpStatusCode.Unauthorized && retry then
-                login
-                let! result = get false
-                return result
-            else 
-                let! responseString = (response.Content.ReadAsStringAsync() |> Async.AwaitTask)
-                return JObject.Parse(responseString)
+            match (response.StatusCode, retry) with
+            |(HttpStatusCode.Unauthorized, true) -> login
+                                                    let! result = get false
+                                                    return result
+            |(HttpStatusCode.OK, _) -> let! responseString = (response.Content.ReadAsStringAsync() |> Async.AwaitTask)
+                                       return JObject.Parse(responseString)
+            |_ -> let errResponse = JObject()
+                  errResponse.Add("code", JToken.FromObject(response.StatusCode))
+                  errResponse.Add("data", JToken.FromObject([||]))
+                  return errResponse
         }
 
         get true
