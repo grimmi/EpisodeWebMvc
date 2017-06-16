@@ -12,6 +12,8 @@ open System.Text
 
 type Episode = { airedEpisodeNumber: int; airedSeason: int; episodeName: string; firstAired: string }
 
+type Show = { name: string }
+
 type TvDbApi() =
 
     let mutable loggedIn = false
@@ -37,6 +39,7 @@ type TvDbApi() =
             return jsonToken.["token"] |> string } |> Async.RunSynchronously
         apiClient <- new HttpClient()
         apiClient.DefaultRequestHeaders.Authorization <- AuthenticationHeaderValue("Bearer", token)
+        apiClient.DefaultRequestHeaders.Add("Accept-Language", "en") |> ignore
         loggedIn <- true
 
     let deserializeEpisode (line:string) =
