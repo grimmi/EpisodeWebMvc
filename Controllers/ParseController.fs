@@ -18,9 +18,11 @@ type ParseController(api:TvDbApi) =
         let nameMatch = Regex.Match(file, showNameRegex)
         match nameMatch.Length with
         |0 -> None
-        |_ -> Some (nameMatch.Value |> String.map(fun c -> match c with
-                                                           |'_' -> ' '
-                                                           |_ -> c))
+        |_ -> Some (nameMatch.Value.Split([|"__"|], StringSplitOptions.RemoveEmptyEntries)
+                    |> Seq.head
+                    |> String.map(fun c -> match c with
+                                           |'_' -> ' '
+                                           |_ -> c))
 
     [<HttpGet>]
     member this.Get(file:string) = 
