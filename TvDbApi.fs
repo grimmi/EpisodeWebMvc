@@ -62,7 +62,28 @@ type TvDbApi() =
         match File.Exists cachePath with
         |true -> Some(File.ReadAllLines cachePath
                       |> Seq.choose deserializeEpisode)
+        |_ -> None   
+
+    let loadShowMappings = 
+        File.ReadAllLines("./shows.map")
+        |> Seq.map(fun (l:string) -> match l.Split("***", StringSplitOptions.RemoveEmptyEntries) with
+                                     |[|parsed; mapped; id|] -> (parsed.Trim(),mapped.Trim(),id.Trim())
+                                     |_ -> ("","",""))
+        |> Seq.filter(fun triple -> triple <> ("","",""))
+
+    let cacheShow parsed mapped id =
+        File.AppendAllText("./shows.map", (sprintf "%s *** %s *** %d" parsed mapped id))
+
+    let getShowFromMap showName =
+        let mappings = loadShowMappings
+                       |> Seq.filter(fun (parsed, name, id) -> parsed = showName)
+
+        match mappings |> Seq.length with
+        |1 -> let (p, n, i) = Seq.head mappings
+              Some { seriesName = n; id = (i |> int) }
         |_ -> None
+
+
 
     member private this.LoadEpisodesFromApi(showId) = async {
 
@@ -111,9 +132,12 @@ type TvDbApi() =
         get true
 
     member this.SearchShow show = async{
-        let! response = this.GetAsync("/search/series?name=" + show)
-        let dbShows = JsonConvert.DeserializeObject<seq<Show>>(response.["data"].ToString())
-        return dbShows
+        let mappedShow = getShowFromMap show
+        match mappedShow with
+        |Some s -> return [s] |> Seq.ofList
+        |None -> let! response = this.GetAsync("/search/series?name=" + show)
+                 let dbShows = JsonConvert.DeserializeObject<seq<Show>>(response.["data"].ToString())
+                 return dbShows
     }
 
     member this.GetEpisodes showId = async{
