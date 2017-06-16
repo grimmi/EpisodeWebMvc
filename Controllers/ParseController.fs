@@ -76,17 +76,29 @@ type ParseController(api:TvDbApi) =
         }
         (getEpisode |> Async.RunSynchronously)
 
+    let makeResponse file (show: Show option) (episode: Episode option) =
+        let unknownShow = { seriesName = "unknown"; id = -1 }
+        let unknownEpisode  = { airedEpisodeNumber = -1; airedSeason = -1; episodeName = "unknown"; firstAired = "1970-01-01" }
+        let responseShow = if show.IsNone then unknownShow else show.Value
+        let responseEpisode = if episode.IsNone then unknownEpisode else episode.Value
 
+        let response = JObject()
+        response.Add("file", JToken.FromObject(file))
+        let showJson = JObject()
+        showJson.Add("name", JToken.FromObject(responseShow.seriesName))
+        showJson.Add("id", JToken.FromObject(responseShow.id))
+        response.Add("show", showJson)
+        let episodeJson = JObject()
+        episodeJson.Add("season", JToken.FromObject(responseEpisode.airedSeason))
+        episodeJson.Add("episode", JToken.FromObject(responseEpisode.airedEpisodeNumber))
+        episodeJson.Add("name", JToken.FromObject(responseEpisode.episodeName))
+        episodeJson.Add("firstaired", JToken.FromObject(responseEpisode.firstAired))
+        response.Add("episode", episodeJson)
+        response
 
     [<HttpGet>]
     member this.Get(file:string) = 
-        let showInfo = getShowInfo file
-        let unknownShow = { seriesName = "unknown"; id = -1 }
-        let unknownEpisode  = { airedEpisodeNumber = -1; airedSeason = -1; episodeName = "unknown"; firstAired = "1970-01-01" }
+        let (parsedShow, dbShow) = getShowInfo file
+        let episodeInfo = getEpisodeInfo file dbShow
 
-        let episodeInfo = getEpisodeInfo file (showInfo |> snd)
-
-        match (showInfo, episodeInfo) with
-        |((Some parsed, Some show), Some episode) -> (parsed, show, episode)
-        |((Some parsed, _), _) -> (parsed, unknownShow, unknownEpisode)
-        |((_, _), _) -> ("<unable to parse showname>", unknownShow, unknownEpisode)
+        makeResponse file dbShow episodeInfo
