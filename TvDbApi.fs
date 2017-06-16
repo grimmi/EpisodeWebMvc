@@ -44,7 +44,7 @@ type TvDbApi() =
 
     let deserializeEpisode (line:string) =
         match line.Split([|"***"|], StringSplitOptions.RemoveEmptyEntries) with
-        |[|season;epno;aired;epname|] -> Some { airedSeason = (season |> int); airedEpisodeNumber = (epno |> int); firstAired = aired; episodeName = epname }
+        |[|season;epno;aired;epname|] -> Some { airedSeason = (season |> int); airedEpisodeNumber = (epno |> int); firstAired = aired.Trim(); episodeName = epname.Trim() }
         |_ -> None
 
     let serializeEpisode episode = 
