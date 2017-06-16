@@ -6,23 +6,20 @@ open Newtonsoft.Json.Linq
 open Microsoft.AspNetCore.Mvc
 
 [<Route("api/decodejob")>]
-type DecodeJobController(jobService : JobService) =
+type DecodeJobController(service : JobService) =
     inherit Controller()
-    let service = jobService
 
     [<HttpGet>]
-    member this.Get() =         
-        let job = service.CurrentJob
-        match job with
-        |None -> let errResponse = JObject()
-                 errResponse.Add("message", JToken.FromObject("no job running"))
-                 errResponse
-        |Some j -> j.ToJson()
+    member this.Get() =   
+        match service.CurrentJob with
+        |None -> let response = JObject()
+                 response.Add("message", JToken.FromObject("no job running"))
+                 response
+        |Some job -> job.ToJson()
 
     [<HttpPost>]
     member this.Post(files: string) =        
-        let ops = files.Split([|','|])
-        service.Run ops
+        service.Run(files.Split([|','|]))
 
         match service.CurrentJob with
         |Some job -> job.ToJson()

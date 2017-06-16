@@ -37,10 +37,7 @@ type ShowMappingController(api: TvDbApi) =
         let result = async{
             if String.IsNullOrWhiteSpace show then
                 let response = JObject()
-                let mappings = showMappings
-                               |> Seq.map mappingToJson
-                               |> Array.ofSeq
-                response.Add("mappings", JToken.FromObject(mappings))
+                response.Add("mappings", JToken.FromObject(showMappings |> Seq.map mappingToJson))
                 return response
             else
                 let! response = dbApi.SearchShow show
