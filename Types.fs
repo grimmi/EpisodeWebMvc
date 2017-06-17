@@ -7,3 +7,8 @@ type DirectoryOptions() =
         with get, set
     member val ProcessedTargetDirectory = ""
         with get, set
+
+
+type Episode = { airedEpisodeNumber: int; airedSeason: int; episodeName: string; firstAired: string }
+
+type Show = { seriesName: string; id: int; }
