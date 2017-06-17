@@ -17,19 +17,22 @@ let parseShowName file =
                                        |'_' -> ' '
                                        |_ -> c))
 
+let getShowInfoByName showName (api:TvDbApi) = 
+    let dbResult = async {
+        let! dbShows = api.SearchShow showName
+        match dbShows |> Seq.length with
+        |1 -> return Some (dbShows |> Seq.head)
+        |_ -> return None
+    }
+    (dbResult |> Async.RunSynchronously)
+
 let getShowInfo file (api:TvDbApi) =
     let getInfo = async{
         let parsedShow = parseShowName file
         let dbShow = match parsedShow with
                      |None -> None
-                     |Some name -> 
-                            let dbResult = async {
-                                let! dbShows = api.SearchShow name
-                                match dbShows |> Seq.length with
-                                |1 -> return Some (dbShows |> Seq.head)
-                                |_ -> return None
-                            }
-                            (dbResult |> Async.RunSynchronously)
+                     |Some name -> api |> getShowInfoByName name
+                            
         return (parsedShow, dbShow)
     }
 
