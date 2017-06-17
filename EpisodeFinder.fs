@@ -11,29 +11,43 @@ let canonizeEpisodeName (name:string) =
     name.ToLower()
     |> String.filter Char.IsLetter
 
+let parseEpisodeName (file:string) =
+    let episodePart = file.Split([|"__"|], StringSplitOptions.RemoveEmptyEntries).[1]
+    let episodeNameMatch = Regex.Match(episodePart, beforeDatePattern)
+    episodeNameMatch.Value |> canonizeEpisodeName
+
+let parseEpisodeDate (file:string) = 
+    match Regex.Match(file, datePattern).Value.Split('.') with
+    |[|yy;mm;dd|] -> sprintf "20%s-%s-%s" yy mm dd
+    |_ -> ""
+
+let findEpisodeByName name (show:Show) (api:TvDbApi) : Async<Episode option> = async {
+    let! showEpisodes = api.GetEpisodes show.id 
+    let foundEpisode = showEpisodes
+                       |> Seq.tryFind(fun ep -> (ep.episodeName |> canonizeEpisodeName) = name)
+    return foundEpisode
+}
+
+let findEpisodeByDate aired (show:Show) (api:TvDbApi) : Async<Episode option>= async {
+    if aired = "" then
+        return None
+    else
+        let! showEpisodes = api.GetEpisodes show.id
+        let foundEpisode = showEpisodes
+                           |> Seq.tryFind(fun ep -> ep.firstAired = aired)
+        return foundEpisode
+}
+
 let getEpisodeInfo (file:string) episodeShow (api:TvDbApi) = 
         let getEpisode = async{
             match episodeShow with
             | None -> return None
             | Some show -> 
                 if file.Contains("__") then
-                    let episodePart = file.Split([|"__"|], StringSplitOptions.RemoveEmptyEntries).[1]
-                    let episodeNameMatch = Regex.Match(episodePart, beforeDatePattern)
-                    let episodeName = episodeNameMatch.Value
-                    let! showEpisodes = api.GetEpisodes show.id 
-                    let foundEpisode = showEpisodes
-                                       |> Seq.tryFind(fun ep -> (ep.episodeName |> canonizeEpisodeName) = (episodeName |> canonizeEpisodeName))
-                    return foundEpisode
+                    let! episode = api |> findEpisodeByName (parseEpisodeName file) show
+                    return episode
                 else
-                    let aired = match Regex.Match(file, datePattern).Value.Split('.') with
-                                |[|yy;mm;dd|] -> sprintf "20%s-%s-%s" yy mm dd
-                                |_ -> ""
-                    if aired = "" then
-                        return None
-                    else
-                        let! showEpisodes = api.GetEpisodes show.id
-                        let foundEpisode = showEpisodes
-                                           |> Seq.tryFind(fun ep -> ep.firstAired = aired)
-                        return foundEpisode
+                    let! episode = api |> findEpisodeByDate (parseEpisodeDate file) show
+                    return episode
         }
         (getEpisode |> Async.RunSynchronously)
