@@ -10,9 +10,6 @@ open System.Net.Http
 open System.Net.Http.Headers
 open System.Text
 
-type Episode = { airedEpisodeNumber: int; airedSeason: int; episodeName: string; firstAired: string }
-
-type Show = { seriesName: string; id: int; }
 
 type TvDbApi() =
 

@@ -11,11 +11,14 @@
 
   <ItemGroup>
     <Compile Include="Types.fs" />
+    <Compile Include="JsonTransformations.fs" />
     <Compile Include="ConfigReader.fs" />
     <Compile Include=".\lib\OtrDecoder\*.fs" />
     <Compile Include="DecodeJob.fs" />
     <Compile Include="JobService.fs" />
     <Compile Include="TvDbApi.fs" />
+    <Compile Include="EpisodeFinder.fs" />
+    <Compile Include="ShowFinder.fs" />
     <Compile Include="Controllers/*.fs" />
     <Compile Include="Startup.fs" />
     <Compile Include="Program.fs" />
