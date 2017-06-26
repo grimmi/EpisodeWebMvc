@@ -9,12 +9,15 @@ let datePattern = @"(\d\d.\d\d.\d\d)"
     
 let canonizeEpisodeName (name:string) =
     name.ToLower()
-    |> String.filter Char.IsLetter
+    |> String.filter(fun c -> Char.IsLetter c || Char.IsDigit c)
 
 let parseEpisodeName (file:string) =
-    let episodePart = file.Split([|"__"|], StringSplitOptions.RemoveEmptyEntries).[1]
+    let fileParts = file.Split([|"__"|], StringSplitOptions.RemoveEmptyEntries)
+    let episodePart = fileParts.[1]
     let episodeNameMatch = Regex.Match(episodePart, beforeDatePattern)
-    episodeNameMatch.Value |> canonizeEpisodeName
+    match episodeNameMatch.Value with
+    |"" -> episodePart |> canonizeEpisodeName
+    |_ -> episodeNameMatch.Value |> canonizeEpisodeName
 
 let parseEpisodeDate (file:string) = 
     match Regex.Match(file, datePattern).Value.Split('.') with
