@@ -45,6 +45,15 @@ type DecodeJob() =
         this.IsDone <- true
     }
 
+    member this.RunSingle file showname episodename episodenumber season = async {
+        let decoder = OtrFileDecoder()
+        let decodedFile = decoder.DecodeFile file getOptions
+        let targetDir = ReadConfigToDict("./otr.cfg").["targetpath"]
+        let targetFile = Path.Combine(targetDir, showname, (sprintf "%s %dx%d %s" showname season episodenumber episodename))
+        File.Copy(decodedFile, targetFile)
+        return targetFile
+    }
+
     member this.ToJson() =
         let json = JObject()
         json.Add("id", JToken.FromObject(this.Id))
