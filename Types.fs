@@ -12,3 +12,4 @@ type DirectoryOptions() =
 type Episode = { airedEpisodeNumber: int; airedSeason: int; episodeName: string; firstAired: string }
 
 type Show = { seriesName: string; id: int; }
+type ProcessInfo = { episodename: string; episodenumber: int; show: string; season: int; file: string }

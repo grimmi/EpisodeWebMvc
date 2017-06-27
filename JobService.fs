@@ -19,3 +19,10 @@ type JobService() =
               tmpJob.Files <- files |> List.ofSeq
               currentJob <- Some tmpJob
               (tmpJob.Run |> Async.Start) |> ignore
+
+    member this.RunProcess (infos : ProcessInfo seq) =
+        match currentJob with
+        |Some job when not job.IsDone -> ()
+        |_ -> let tmpJob = DecodeJob()
+              currentJob <- Some tmpJob
+              ((tmpJob.RunInfos infos) |> Async.Ignore) |> ignore

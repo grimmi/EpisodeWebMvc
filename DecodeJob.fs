@@ -45,13 +45,14 @@ type DecodeJob() =
         this.IsDone <- true
     }
 
-    member this.RunSingle file showname episodename episodenumber season = async {
-        let decoder = OtrFileDecoder()
-        let decodedFile = decoder.DecodeFile file getOptions
-        let targetDir = ReadConfigToDict("./otr.cfg").["targetpath"]
-        let targetFile = Path.Combine(targetDir, showname, (sprintf "%s %dx%d %s" showname season episodenumber episodename))
-        File.Copy(decodedFile, targetFile)
-        return targetFile
+    member this.RunInfos (infos : ProcessInfo seq) = async {
+        return infos
+               |> Seq.map(fun info -> let decoder = OtrFileDecoder()
+                                      let decodedFile = decoder.DecodeFile info.file getOptions
+                                      let targetDir = ReadConfigToDict("./otr.cfg").["targetpath"]
+                                      let targetFile = Path.Combine(targetDir, info.show, (sprintf "%s %dx%d %s" info.show info.season info.episodenumber info.episodename))
+                                      File.Copy(decodedFile, targetFile)
+                                      targetFile)
     }
 
     member this.ToJson() =
