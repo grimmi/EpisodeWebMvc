@@ -1,7 +1,6 @@
 var fileinfos = [];
 
 function loadFiles(){
-    window.alert("loading...");
     var req = new XMLHttpRequest();
     req.open("GET", "./api/fileinfo", true);
     req.setRequestHeader("Content-Type", "application/json");
@@ -23,4 +22,14 @@ function loadFiles(){
         }
     }
     req.send(null);
+}
+
+function sendInfos(){
+    var req = new XMLHttpRequest();
+    req.open("POST", "./api/process", true);
+    req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    req.onload = function(e){
+        console.log(req.responseText);
+    }
+    req.send("infos=" + fileinfos);
 }
