@@ -31,5 +31,5 @@ function sendInfos(){
     req.onload = function(e){
         console.log(req.responseText);
     }
-    req.send("infos=" + fileinfos);
+    req.send("infos=" + JSON.stringify(fileinfos));
 }

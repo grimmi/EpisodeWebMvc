@@ -24,14 +24,15 @@ type ProcessController(service: JobService) =
         |Some job -> job.ToJson()
 
     [<HttpPost>]
-    member this.Post(infos : JObject seq) =
-        let f = infos
+    member this.Post(infos: string) =
+        let json = JsonConvert.DeserializeObject<JObject[]>(infos)
+        let f = json
                 |> Seq.map(fun info -> { episodename = info.Value<string>("episodename");
                                         episodenumber = info.Value<int>("episodenumber");
                                         show = info.Value<string>("show");
                                         season = info.Value<int>("season");
                                         file = info.Value<string>("file"); })
-        // service.RunProcess f
+        service.RunProcess f
 
         match service.CurrentJob with
         |Some job -> job.ToJson()
