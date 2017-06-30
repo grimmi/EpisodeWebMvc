@@ -46,13 +46,14 @@ type DecodeJob() =
     }
 
     member this.RunInfos (infos : ProcessInfo seq) = async {
-        return infos
-               |> Seq.map(fun info -> let decoder = OtrFileDecoder()
-                                      let decodedFile = decoder.DecodeFile info.file getOptions
-                                      let targetDir = ReadConfigToDict("./otr.cfg").["targetpath"]
-                                      let targetFile = Path.Combine(targetDir, info.show, (sprintf "%s %dx%d %s" info.show info.season info.episodenumber info.episodename))
-                                      File.Copy(decodedFile, targetFile)
-                                      targetFile)
+        infos
+        |> List.ofSeq
+        |> List.iter(fun info -> let decoder = OtrFileDecoder()
+                                 let decodedFile = decoder.DecodeFile ("z:\\downloads\\" + info.file) getOptions
+                                 let targetDir = ReadConfigToDict("./otr.cfg").["targetpath"]
+                                 let targetFile = Path.Combine(targetDir, info.show, (sprintf "%s %dx%d %s" info.show info.season info.episodenumber info.episodename))
+                                 File.Copy(decodedFile, targetFile))
+        |> ignore
     }
 
     member this.ToJson() =

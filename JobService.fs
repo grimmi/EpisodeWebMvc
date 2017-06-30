@@ -25,4 +25,4 @@ type JobService() =
         |Some job when not job.IsDone -> ()
         |_ -> let tmpJob = DecodeJob()
               currentJob <- Some tmpJob
-              ((tmpJob.RunInfos infos) |> Async.Ignore) |> ignore
+              (tmpJob.RunInfos infos) |> Async.Start
