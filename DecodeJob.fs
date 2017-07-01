@@ -52,7 +52,7 @@ type DecodeJob() =
                                  let decodedFile = decoder.DecodeFile ("z:\\downloads\\" + info.file) getOptions
                                  let targetDir = ReadConfigToDict("./otr.cfg").["targetpath"]
                                  let targetFile = Path.Combine(targetDir, info.show, (sprintf "%s %dx%d %s" info.show info.season info.episodenumber info.episodename))
-                                 File.Copy(decodedFile, targetFile))
+                                 File.Copy(decodedFile, (targetFile + ".avi"))
         |> ignore
     }
 
