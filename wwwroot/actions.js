@@ -55,17 +55,23 @@ function editinfo(i) {
 
 function searchShow() {
     var showBox = document.getElementById("editshow");
-    var show = showBox.getAttribute("value");
+    var show = showBox.value;
     var req = new XMLHttpRequest();
     req.open("GET", "./api/showmapping?show=" + show, true);
     req.setRequestHeader("Content-Type", "application/json");
     req.send(null);
-    req.onreadystatechange = function (e) {
-        if (req.readyState === 4) {
-            console.log(e.responseText);
-            var response = JSON.parse(e.responseText);
-            console.log(JSON.stringify(response));
+    req.onload = function (e) {
+        if (req.readyState == 4) {
+            handleResponse(req);
         }
+    }
+}
+
+function handleResponse(e) {
+    if (e.responseText.length > 0) {
+        console.log(e.responseText);
+        var response = JSON.parse(e.responseText);
+        alert(JSON.stringify(response));
     }
 }
 
