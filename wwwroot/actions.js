@@ -29,7 +29,7 @@ function listInfos() {
         ul.setAttribute("id", "thelist");
         listDiv.appendChild(ul);
     }
-    else{
+    else {
         ul.innerHTML = "";
     }
 
@@ -45,17 +45,28 @@ function listInfos() {
     }
 }
 
-function editinfo(i){
+function editinfo(i) {
     var info = fileinfos[i];
-    var lblShow = document.createElement("label");
-    lblShow.innerHTML = "Show:";
-    var editShow = document.createElement("input");
-    editShow.type = "text";
-    editShow.setAttribute("value", info["show"]);
     var editDiv = document.getElementById("episodeedit");
-    editDiv.innerHTML = "";
-    editDiv.appendChild(lblShow);
-    editDiv.appendChild(editShow);
+    editDiv.setAttribute("style", "visibility:visible");
+    var showEdit = document.getElementById("editshow");
+    showEdit.setAttribute("value", info["show"]);
+}
+
+function searchShow() {
+    var showBox = document.getElementById("editshow");
+    var show = showBox.getAttribute("value");
+    var req = new XMLHttpRequest();
+    req.open("GET", "./api/showmapping?show=" + show, true);
+    req.setRequestHeader("Content-Type", "application/json");
+    req.send(null);
+    req.onreadystatechange = function (e) {
+        if (req.readyState === 4) {
+            console.log(e.responseText);
+            var response = JSON.parse(e.responseText);
+            console.log(JSON.stringify(response));
+        }
+    }
 }
 
 function sendInfos() {
