@@ -21,7 +21,9 @@ type ShowMappingController(api: TvDbApi) =
         |> Seq.filter(fun triple -> triple <> ("","",""))
 
     let cacheShow parsed mapped id =
-        File.AppendAllText("./shows.map", (sprintf "%s *** %s *** %d" parsed mapped id))
+        let newCacheEntry = sprintf "%s%s *** %s *** %d" Environment.NewLine parsed mapped id
+        let finfo = FileInfo("./shows.map")
+        File.AppendAllText("./shows.map", newCacheEntry, System.Text.Encoding.UTF8)
 
     let mutable showMappings = loadMappings
 

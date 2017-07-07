@@ -69,10 +69,31 @@ function searchShow() {
 
 function handleResponse(e) {
     if (e.responseText.length > 0) {
-        console.log(e.responseText);
-        var response = JSON.parse(e.responseText);
-        alert(JSON.stringify(response));
+        var shows = JSON.parse(e.responseText)["shows"];
+        var mappinglist = document.getElementById("mappinglist");
+        mappinglist.innerHTML = "";
+        var parsedShow = document.getElementById("editshow").value;
+        for(var i = 0; i < shows.length; i++){
+            var mapping = shows[i];
+            var li = document.createElement("li");
+            li.setAttribute("id", "map-" + i);
+            var liDiv = document.createElement("div");
+            liDiv.setAttribute("onclick", "sendmapping('" + parsedShow + "','" + mapping["name"] + "'," + mapping["tvdbid"] + ")");
+            liDiv.innerText = mapping["name"] + " (id: " + mapping["tvdbid"] + ")";
+            li.appendChild(liDiv);
+            mappinglist.appendChild(li);            
+        }
     }
+}
+
+function sendmapping(parsed, mapped, id){
+    var req = new XMLHttpRequest();
+    req.open("POST", "./api/showmapping");
+    req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    req.onload = function(e){
+        alert("mapping eingetragen: " + e.responseText);
+    }
+    req.send("parsed=" + parsed + "&mapped=" + mapped + "&id=" + id);
 }
 
 function sendInfos() {
