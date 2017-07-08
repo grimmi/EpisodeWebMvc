@@ -62,8 +62,14 @@ type ShowMappingController(api: TvDbApi) =
 
     [<HttpPost>]
     member this.Post(parsed: string, mapped: string, id: int) = 
-        cacheShow parsed mapped id
-        showMappings <- showMappings |> Seq.append [(parsed, mapped, (id |> string))]
-        let response = JObject()
-        response.Add("message", JToken.FromObject(sprintf "added mapping: %s --> %s" parsed mapped))
+        let response = if not (showMappings |> Seq.exists(fun (p, m, i) -> p = parsed && m = mapped && i = (id |> string))) then            
+                            cacheShow parsed mapped id
+                            showMappings <- showMappings |> Seq.append [(parsed, mapped, (id |> string))]
+                            let addresponse = JObject()
+                            addresponse.Add("message", JToken.FromObject(sprintf "added mapping: %s --> %s" parsed mapped))
+                            addresponse
+                       else
+                            let existsResponse = JObject();
+                            existsResponse.Add("message", JToken.FromObject("mapping exists already"))
+                            existsResponse
         response
