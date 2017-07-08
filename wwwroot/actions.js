@@ -92,10 +92,17 @@ function sendmapping(parsed, mapped, id) {
         req.open("POST", "./api/showmapping");
         req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
         req.onload = function (e) {
-            alert("mapping eingetragen: " + e.responseText);
+            showResponse(e);
+        }
+        req.onreadystatechange = function (e) {
+            showResponse(e);
         }
         req.send("parsed=" + parsed + "&mapped=" + mapped + "&id=" + id);
     }
+}
+
+function showResponse(e) {
+    alert("response: " + e.responseText);
 }
 
 function sendInfos() {
