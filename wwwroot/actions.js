@@ -73,7 +73,7 @@ function handleResponse(e) {
         var mappinglist = document.getElementById("mappinglist");
         mappinglist.innerHTML = "";
         var parsedShow = document.getElementById("editshow").value;
-        for(var i = 0; i < shows.length; i++){
+        for (var i = 0; i < shows.length; i++) {
             var mapping = shows[i];
             var li = document.createElement("li");
             li.setAttribute("id", "map-" + i);
@@ -81,19 +81,21 @@ function handleResponse(e) {
             liDiv.setAttribute("onclick", "sendmapping('" + parsedShow + "','" + mapping["name"] + "'," + mapping["tvdbid"] + ")");
             liDiv.innerText = mapping["name"] + " (id: " + mapping["tvdbid"] + ")";
             li.appendChild(liDiv);
-            mappinglist.appendChild(li);            
+            mappinglist.appendChild(li);
         }
     }
 }
 
-function sendmapping(parsed, mapped, id){
-    var req = new XMLHttpRequest();
-    req.open("POST", "./api/showmapping");
-    req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    req.onload = function(e){
-        alert("mapping eingetragen: " + e.responseText);
+function sendmapping(parsed, mapped, id) {
+    if (confirm(unescape("Sicher, dass Sie f%FCr die erkannte Show '" + parsed + "' [" + mapped + "] als g%FCltigen Namen eintragen m%F6chten?"))) {
+        var req = new XMLHttpRequest();
+        req.open("POST", "./api/showmapping");
+        req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        req.onload = function (e) {
+            alert("mapping eingetragen: " + e.responseText);
+        }
+        req.send("parsed=" + parsed + "&mapped=" + mapped + "&id=" + id);
     }
-    req.send("parsed=" + parsed + "&mapped=" + mapped + "&id=" + id);
 }
 
 function sendInfos() {
