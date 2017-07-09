@@ -54,10 +54,7 @@ function searchShow() {
     var showBox = document.getElementById("editshow");
     var show = showBox.value;
     fetch("/api/showmapping?show=" + show, {
-        headers: {
-            "Content-Type": "application/json"
-        }
-    })
+        headers: { "Content-Type": "application/json" } })
         .then((resp) => resp.json())
         .then(function (response) { handleResponse(response); });
 }
@@ -83,17 +80,14 @@ function handleResponse(e) {
 
 function sendmapping(parsed, mapped, id) {
     if (confirm(unescape("Sicher, dass Sie f%FCr die erkannte Show '" + parsed + "' [" + mapped + "] als g%FCltigen Namen eintragen m%F6chten?"))) {
-        fetch("/api/showmapping",{
-            headers:{
-                "Content-Type": "application/x-www-form-urlencoded"
-            },
+        fetch("/api/showmapping", {
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
             method: "POST",
-            body: "parsed=" + parsed + "&mapped=" + mapped + "&id=" + id
-        })
-        .then(resp => resp.json())
-        .then(function(response){
-            showResponse(JSON.stringify(response));
-        });
+            body: "parsed=" + parsed + "&mapped=" + mapped + "&id=" + id })
+            .then(resp => resp.json())
+            .then(function (response) {
+                showResponse(JSON.stringify(response));
+            });
     }
 }
 
@@ -102,11 +96,8 @@ function showResponse(e) {
 }
 
 function sendInfos() {
-    var req = new XMLHttpRequest();
-    req.open("POST", "./api/process", true);
-    req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    req.onload = function (e) {
-        console.log(req.responseText);
-    }
-    req.send("infos=" + JSON.stringify(fileinfos));
+    fetch("/api/process", {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        method: "POST",
+        body: "infos=" + JSON.stringify(fileinfos)});
 }
