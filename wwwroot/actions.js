@@ -83,21 +83,22 @@ function handleResponse(e) {
 
 function sendmapping(parsed, mapped, id) {
     if (confirm(unescape("Sicher, dass Sie f%FCr die erkannte Show '" + parsed + "' [" + mapped + "] als g%FCltigen Namen eintragen m%F6chten?"))) {
-        var req = new XMLHttpRequest();
-        req.open("POST", "./api/showmapping");
-        req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-        req.onload = function (e) {
-            showResponse(e);
-        }
-        req.onreadystatechange = function (e) {
-            showResponse(e);
-        }
-        req.send("parsed=" + parsed + "&mapped=" + mapped + "&id=" + id);
+        fetch("/api/showmapping",{
+            headers:{
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            method: "POST",
+            body: "parsed=" + parsed + "&mapped=" + mapped + "&id=" + id
+        })
+        .then(resp => resp.json())
+        .then(function(response){
+            showResponse(JSON.stringify(response));
+        });
     }
 }
 
 function showResponse(e) {
-    alert("response: " + e.responseText);
+    alert("response: " + e);
 }
 
 function sendInfos() {
