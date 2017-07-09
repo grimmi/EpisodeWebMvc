@@ -56,15 +56,12 @@ function editinfo(i) {
 function searchShow() {
     var showBox = document.getElementById("editshow");
     var show = showBox.value;
-    var req = new XMLHttpRequest();
-    req.open("GET", "./api/showmapping?show=" + show, true);
-    req.setRequestHeader("Content-Type", "application/json");
-    req.send(null);
-    req.onload = function (e) {
-        if (req.readyState == 4) {
-            handleResponse(req);
+    fetch("/api/showmapping?show= " + show,{
+        headers:{
+            "Content-Type": "application/json"
         }
-    }
+    })
+    .then(handleResponse(response));
 }
 
 function handleResponse(e) {
