@@ -1,24 +1,21 @@
 var fileinfos = [];
 
 function loadFiles() {
-    var req = new XMLHttpRequest();
-    req.open("GET", "./api/fileinfo", true);
-    req.setRequestHeader("Content-Type", "application/json");
-    req.onload = function (e) {
-        fileinfos = [];
-        var infos = JSON.parse(req.responseText)["infos"];
-        for (var i = 0; i < infos.length; i++) {
-            var info = infos[i];
-            var episode = info["episode"];
-            var show = info["show"];
-            var file = info["file"];
+    fetch("/api/fileinfo")
+        .then(resp => resp.json())
+        .then(function (response) {
+            fileinfos = [];
+            var infos = response["infos"];
+            for (var i = 0; i < infos.length; i++) {
+                var info = infos[i];
+                var episode = info["episode"];
+                var show = info["show"];
+                var file = info["file"];
 
-            fileinfos.push({ "show": show["name"], "episodename": episode["name"], "episodenumber": episode["number"], "season": episode["season"], "file": file });
-        }
-
-        listInfos();
-    }
-    req.send(null);
+                fileinfos.push({ "show": show["name"], "episodename": episode["name"], "episodenumber": episode["number"], "season": episode["season"], "file": file });
+            }
+            listInfos();
+        });
 }
 
 function listInfos() {
@@ -56,13 +53,13 @@ function editinfo(i) {
 function searchShow() {
     var showBox = document.getElementById("editshow");
     var show = showBox.value;
-    fetch("/api/showmapping?show=" + show,{
-        headers:{
+    fetch("/api/showmapping?show=" + show, {
+        headers: {
             "Content-Type": "application/json"
         }
     })
-    .then((resp) => resp.json())
-    .then(function(response){handleResponse(response);});
+        .then((resp) => resp.json())
+        .then(function (response) { handleResponse(response); });
 }
 
 function handleResponse(e) {
