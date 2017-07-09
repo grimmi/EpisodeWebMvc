@@ -56,17 +56,18 @@ function editinfo(i) {
 function searchShow() {
     var showBox = document.getElementById("editshow");
     var show = showBox.value;
-    fetch("/api/showmapping?show= " + show,{
+    fetch("/api/showmapping?show=" + show,{
         headers:{
             "Content-Type": "application/json"
         }
     })
-    .then(handleResponse(response));
+    .then((resp) => resp.json())
+    .then(function(response){handleResponse(response);});
 }
 
 function handleResponse(e) {
-    if (e.responseText.length > 0) {
-        var shows = JSON.parse(e.responseText)["shows"];
+    if (e !== null) {
+        var shows = e["shows"];
         var mappinglist = document.getElementById("mappinglist");
         mappinglist.innerHTML = "";
         var parsedShow = document.getElementById("editshow").value;
