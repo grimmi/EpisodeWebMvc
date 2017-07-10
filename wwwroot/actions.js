@@ -54,7 +54,8 @@ function searchShow() {
     var showBox = document.getElementById("editshow");
     var show = showBox.value;
     fetch("/api/showmapping?show=" + show, {
-        headers: { "Content-Type": "application/json" } })
+        headers: { "Content-Type": "application/json" }
+    })
         .then((resp) => resp.json())
         .then(function (response) { handleResponse(response); });
 }
@@ -83,7 +84,8 @@ function sendmapping(parsed, mapped, id) {
         fetch("/api/showmapping", {
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
             method: "POST",
-            body: "parsed=" + parsed + "&mapped=" + mapped + "&id=" + id })
+            body: "parsed=" + parsed + "&mapped=" + mapped + "&id=" + id
+        })
             .then(resp => resp.json())
             .then(function (response) {
                 showResponse(JSON.stringify(response));
@@ -99,5 +101,29 @@ function sendInfos() {
     fetch("/api/process", {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         method: "POST",
-        body: "infos=" + JSON.stringify(fileinfos)});
+        body: "infos=" + JSON.stringify(fileinfos)
+    }).then(function(r){
+        processdone = false;
+        showStatus();
+    });
+}
+
+var processdone = false;
+
+function showStatus() {
+    if(processdone){ return; }
+    setTimeout(showStatus, 5000);
+    fetch("/api/process", {
+        headers: { "Content-Type": "application/json" },
+        method: "GET"
+    }).then(resp => resp.json())
+        .then(function (response) {
+            if (!response["done"]) {
+                Materialize.toast(response["progress"] + "% (" + response["currentstep"] + ")", 4000);
+            }
+            else{
+                processdone = true;
+                Materialize.toast("all done!", 4000);
+            }
+        });
 }
