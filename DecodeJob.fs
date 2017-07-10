@@ -46,7 +46,7 @@ type DecodeJob() =
     }
 
     member this.RunInfos (infos : ProcessInfo seq) = async {
-        let targetPath = ReadConfigToDict("./otr.cfg").["targetpath"]
+        let targetPath = ReadConfigToDict("./otr.cfg").["keyfilepath"]
 
         infos
         |> List.ofSeq
@@ -55,6 +55,8 @@ type DecodeJob() =
                                  this.ProgValue <- (100. / float(infos |> Seq.length)) * float(infos |> Seq.findIndex(fun i -> i.file = info.file))
                                  let decodedFile = decoder.DecodeFile (Path.Combine(targetPath,info.file)) getOptions
                                  let targetDir = ReadConfigToDict("./otr.cfg").["targetpath"]
+                                 if not (Directory.Exists targetDir) then
+                                    (Directory.CreateDirectory targetDir) |> ignore
                                  let targetFile = Path.Combine(targetDir, info.show, (sprintf "%s %dx%d %s" info.show info.season info.episodenumber info.episodename))
                                  File.Copy(decodedFile, (targetFile + ".avi")))
         |> ignore
