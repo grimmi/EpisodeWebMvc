@@ -54,16 +54,12 @@ type DecodeJob() =
                                  this.CurrentStep <- info.file
                                  this.ProgValue <- (100. / float(infos |> Seq.length)) * float(infos |> Seq.findIndex(fun i -> i.file = info.file))
                                  let decodedFile = decoder.DecodeFile (Path.Combine(targetPath,info.file)) getOptions
-                                 printfn "decodedFile: %s" decodedFile
                                  let targetDir = ReadConfigToDict("./otr.cfg").["targetpath"]
-                                 printfn "targetdir: %s" targetDir
                                  if not (Directory.Exists targetDir) then
-                                    printfn "creating targetdir..."
                                     (Directory.CreateDirectory targetDir) |> ignore
                                  let targetFile = Path.Combine(targetDir, info.show, (sprintf "%s %dx%d %s" info.show info.season info.episodenumber info.episodename))
                                  if not (Directory.Exists(Path.Combine(targetDir, info.show))) then
                                     Directory.CreateDirectory(Path.Combine(targetDir, info.show)) |> ignore
-                                 printfn "targetfile: %s" targetFile
                                  File.Copy(decodedFile, (targetFile + ".avi")))
         |> ignore
     }
