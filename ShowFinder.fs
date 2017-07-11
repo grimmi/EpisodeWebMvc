@@ -22,7 +22,9 @@ let getShowInfoByName showName (api:TvDbApi) =
         let! dbShows = api.SearchShow showName
         match dbShows |> Seq.length with
         |1 -> return Some (dbShows |> Seq.head)
-        |_ -> return None
+        |_ -> match dbShows |> Seq.tryFind(fun s -> s.seriesName = showName) with
+              |None -> return None
+              |Some matched -> return Some matched
     }
     (dbResult |> Async.RunSynchronously)
 
