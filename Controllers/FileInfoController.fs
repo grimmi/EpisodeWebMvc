@@ -15,6 +15,9 @@ open JsonTransformations
 type FileInfoController(directoryOptions: IOptions<DirectoryOptions>, api : TvDbApi) =
     inherit Controller()
 
+    let unknownEpisode = { airedEpisodeNumber = -1; airedSeason = -1; episodeName = "unknown"; firstAired = "n/a" }
+    let unknownShow = { seriesName = "unknown"; id = -1 }
+
     let options = directoryOptions.Value
     [<HttpGet>]
     member this.Get() =
@@ -23,11 +26,13 @@ type FileInfoController(directoryOptions: IOptions<DirectoryOptions>, api : TvDb
                     |> Seq.sortBy(fun i -> i.CreationTime)
                     |> Seq.map(fun i -> i.Name)
 
-        let infos = Seq.map ((fun f -> (f, api |> getShowInfo f)) >> (fun (file, (parsed, dbShow)) -> (file, dbShow, api |> getEpisodeInfo file dbShow))) files
+        let infos = Seq.map ((fun f -> (f, api |> getShowInfo f)) 
+                                >> (fun (file, (parsed, dbShow)) -> 
+                                    (file, dbShow, api |> getEpisodeInfo file dbShow))) files
         let jsons = infos
-                    |> Seq.choose(fun (f, s, e) -> match (s, e) with
-                                                   |(_, None) -> None
-                                                   |(None, _) -> None
+                    |> Seq.choose(fun (f, s, e) -> match (s, e) with                             
+                                                   |(None, _) -> Some(f, unknownShow, unknownEpisode)                      
+                                                   |(_, None) -> Some(f, s.Value, unknownEpisode)                                                   
                                                    |(_, _) -> Some (f, s.Value, e.Value))
                     |> Seq.map(fun (file, show, episode) -> 
                                 let info = JObject()

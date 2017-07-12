@@ -2,10 +2,16 @@ module ShowFinder
 
 open EpisodeWebMvc
 open System
+open System.IO
 open System.Text.RegularExpressions
 
 let beforeDatePattern = @".+?(?=_\d\d.\d\d.\d\d)"
 let datePattern = @"(\d\d.\d\d.\d\d)"
+
+let cacheShow parsed mapped id =
+    let newCacheEntry = sprintf "%s%s *** %s *** %d" Environment.NewLine parsed mapped id
+    let finfo = FileInfo("./shows.map")
+    File.AppendAllText("./shows.map", newCacheEntry, System.Text.Encoding.UTF8)
 
 let parseShowName file =
     let nameMatch = Regex.Match(file, beforeDatePattern)
@@ -35,6 +41,10 @@ let getShowInfo file (api:TvDbApi) =
                      |None -> None
                      |Some name -> api |> getShowInfoByName name
                             
+        match dbShow with
+        |None -> ()
+        |Some show -> cacheShow parsedShow.Value show.seriesName show.id
+
         return (parsedShow, dbShow)
     }
 
