@@ -63,10 +63,10 @@ type TvDbApi() =
 
     let loadShowMappings = 
         File.ReadAllLines("./shows.map")
-        |> Seq.map(fun (l:string) -> match l.Split("***", StringSplitOptions.RemoveEmptyEntries) with
-                                     |[|parsed; mapped; id|] -> (parsed.Trim(),mapped.Trim(),id.Trim())
-                                     |_ -> ("","",""))
-        |> Seq.filter(fun triple -> triple <> ("","",""))
+        |> Array.map(fun (l:string) -> match l.Split("***", StringSplitOptions.RemoveEmptyEntries) with
+                                       |[|parsed; mapped; id|] -> (parsed.Trim(),mapped.Trim(),id.Trim())
+                                       |_ -> ("","",""))
+        |> Array.filter(fun triple -> triple <> ("","",""))
 
     let cacheShow parsed mapped id =
         File.AppendAllText("./shows.map", (sprintf "%s *** %s *** %d" parsed mapped id))
@@ -148,3 +148,10 @@ type TvDbApi() =
                  cacheEpisodes apiEpisodes showId
                  return apiEpisodes
     }
+
+    member this.CacheShow parsed show =
+        let cachedShows = loadShowMappings
+        if cachedShows |> Seq.exists(fun (p, n, id) -> p = parsed && n = show.seriesName && id = (show.id |> string)) then
+            ()
+        else
+            cacheShow parsed show.seriesName show.id

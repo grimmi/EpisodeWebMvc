@@ -43,7 +43,7 @@ let getShowInfo file (api:TvDbApi) =
                             
         match dbShow with
         |None -> ()
-        |Some show -> cacheShow parsedShow.Value show.seriesName show.id
+        |Some show -> api.CacheShow parsedShow.Value show
 
         return (parsedShow, dbShow)
     }
