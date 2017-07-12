@@ -52,18 +52,20 @@ type DecodeJob() =
         |> List.ofSeq
         |> List.iter(fun info -> let decoder = OtrFileDecoder()
                                  this.CurrentStep <- info.file
-                                 this.ProgValue <- (100. / float(infos |> Seq.length)) * float(infos |> Seq.findIndex(fun i -> i.file = info.file))
-                                 System.Threading.Thread.Sleep(5500)
-                                //  let decodedFile = decoder.DecodeFile (Path.Combine(targetPath,info.file)) getOptions
+                                 this.ProgValue <- 20.
+                                 let decodedFile = decoder.DecodeFile (Path.Combine(targetPath,info.file)) getOptions
+                                 this.ProgValue <- 80.
                                  let targetDir = ReadConfigToDict("./otr.cfg").["targetpath"]
                                  if not (Directory.Exists targetDir) then
                                     (Directory.CreateDirectory targetDir) |> ignore
                                  let targetFile = Path.Combine(targetDir, info.show, (sprintf "%s %dx%d %s" info.show info.season info.episodenumber info.episodename))
-                                 printfn "targetFile: %s" targetFile
+                                 printfn "targetfile: %s" targetFile
                                  if not (Directory.Exists(Path.Combine(targetDir, info.show))) then
                                     Directory.CreateDirectory(Path.Combine(targetDir, info.show)) |> ignore
-                                //  File.Copy(decodedFile, (targetFile + ".avi"))
-                                )
+                                 this.ProgValue <- 100.
+                                 File.Copy(decodedFile, (targetFile + ".avi"))
+                                 File.Move(Path.Combine(targetPath, info.file), Path.Combine(targetPath, "processed", info.file))
+        )
         |> ignore
         this.IsDone <- true
     }
