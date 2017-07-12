@@ -192,3 +192,9 @@ function markFinished(index) {
     var episodeDiv = document.getElementById("ep-" + index);
     episodeDiv.style.color = "blue";
 }
+
+function updateLibrary(){
+    fetch("/api/updatemedialibrary",{
+        method: "GET"
+    });
+}
