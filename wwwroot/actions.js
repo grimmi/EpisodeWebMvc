@@ -158,7 +158,7 @@ function sendInfo(index) {
     fetch("/api/process", {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         method: "POST",
-        body: "infos=" + JSON.stringify([infoToSend])
+        body: "infos=" + encodeURIComponent(JSON.stringify([infoToSend]))
     }).then(function (r) {
         showStatus();
     });

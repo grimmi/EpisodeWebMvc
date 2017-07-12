@@ -20,6 +20,13 @@ type DecodeJob() =
         options.Password <- otrConfig.["password"]           
         options
 
+    let makeFileName info =
+        let invalidChars = Array.concat[|Path.GetInvalidFileNameChars(); Path.GetInvalidPathChars()|]
+        let isValid c = not (Seq.exists(fun ch -> ch = c) invalidChars)
+        let cleanShow = info.show |> String.filter isValid
+        let cleanEpisode = info.episodename |> String.filter isValid
+
+        sprintf "%s %dx%d %s" cleanShow info.season info.episodenumber cleanEpisode
     member this.Id
         with get () = id
 
@@ -33,6 +40,7 @@ type DecodeJob() =
     member val Files : string list = [] with get, set
 
     member val IsDone = false with get, set
+
 
     member this.Run = async {
         let decoder = OtrFileDecoder()
@@ -58,7 +66,7 @@ type DecodeJob() =
                                  let targetDir = ReadConfigToDict("./otr.cfg").["targetpath"]
                                  if not (Directory.Exists targetDir) then
                                     (Directory.CreateDirectory targetDir) |> ignore
-                                 let targetFile = Path.Combine(targetDir, info.show, (sprintf "%s %dx%d %s" info.show info.season info.episodenumber info.episodename))
+                                 let targetFile = Path.Combine(targetDir, info.show, (makeFileName info))
                                  printfn "targetfile: %s" targetFile
                                  if not (Directory.Exists(Path.Combine(targetDir, info.show))) then
                                     Directory.CreateDirectory(Path.Combine(targetDir, info.show)) |> ignore
