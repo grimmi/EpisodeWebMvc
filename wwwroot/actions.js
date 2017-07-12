@@ -144,7 +144,7 @@ function sendInfos() {
             sendInfo(i);
             break;
         }
-        else{
+        else {
             Materialize.toast("skipping " + procInfo["file"] + " because the info is incomplete", 3500);
         }
         if (i === fileinfos.length - 1) {
@@ -164,26 +164,31 @@ function sendInfo(index) {
     });
 }
 
+function infoString(info) {
+    return info["show"] + ": " + info["episodename"] + " (" + info["season"] + "x" + info["episodenumber"] + ")";
+}
+
 function showStatus() {
     fetch("/api/process", {
         headers: { "Content-Type": "application/json" },
         method: "GET"
     }).then(resp => resp.json())
         .then(function (response) {
+            var currentInfo = fileinfos[processIndex];
             if (!response["done"]) {
                 setTimeout(showStatus, 5000);
-                Materialize.toast(response["progress"] + "% (" + response["currentstep"] + ")", 4000);
+                Materialize.toast(response["progress"] + "% (" + infoString(currentInfo) + ")", 4000);
             }
             else {
                 markFinished(processIndex);
                 processIndex = processIndex + 1;
-                Materialize.toast(response["currentstep"] + " processed!", 2500)
+                Materialize.toast(infoString(currentInfo) + " processed!", 2500)
                 sendInfos();
             }
         });
 }
 
-function markFinished(index){
+function markFinished(index) {
     var episodeDiv = document.getElementById("ep-" + index);
     episodeDiv.style.color = "blue";
 }
