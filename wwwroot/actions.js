@@ -1,6 +1,7 @@
 var fileinfos = [];
 var editInfo = {};
 var editIndex = -1;
+var processIndex = 0;
 
 function loadFiles() {
     fetch("/api/fileinfo")
@@ -17,6 +18,7 @@ function loadFiles() {
                 fileinfos.push({ "show": show["name"], "episodename": episode["name"], "episodenumber": episode["number"], "season": episode["season"], "file": file });
             }
             listInfos();
+            processIndex = 0;
         });
 }
 
@@ -38,11 +40,11 @@ function listInfos() {
         var liDiv = document.createElement("div");
         liDiv.setAttribute("id", "ep-" + i);
         liDiv.innerHTML = info["show"] + ": " + info["episodename"] + " (" + info["season"] + "x" + info["episodenumber"] + ")";
-        if(info["episodenumber"] == -1){
+        if (info["episodenumber"] == -1) {
             liDiv.style.color = "orange";
             liDiv.style.fontWeight = "bold";
         }
-        if(info["changed"] == true){
+        if (info["changed"] == true) {
             liDiv.style.color = "green";
             liDiv.style.fontWeight = "bold";
         }
@@ -60,16 +62,16 @@ function editinfo(i) {
     var fileSpan = document.getElementById("filename");
     fileSpan.innerText = info["file"];
     var showEdit = document.getElementById("editshow");
-    showEdit.setAttribute("value", info["show"]);
+    showEdit.value = info["show"];
     var epNameEdit = document.getElementById("editepisodename");
-    epNameEdit.setAttribute("value", info["episodename"]);
+    epNameEdit.value = info["episodename"];
     var seasonEdit = document.getElementById("editseasonnumber");
-    seasonEdit.setAttribute("value", info["season"]);
+    seasonEdit.value = info["season"];
     var epNoEdit = document.getElementById("editepisodenumber");
-    epNoEdit.setAttribute("value", info["episodenumber"]);
+    epNoEdit.value = info["episodenumber"];
 }
 
-function saveEdit(){
+function saveEdit() {
     var showName = document.getElementById("editshow").value;
     var episodeName = document.getElementById("editepisodename").value;
     var season = document.getElementById("editseasonnumber").value;
@@ -132,32 +134,56 @@ function showResponse(e) {
 }
 
 function sendInfos() {
+    for (var i = processIndex; i < fileinfos.length; i++) {
+        var procInfo = fileinfos[i];
+        if (procInfo["show"] !== "unknown"
+            && procInfo["season"] !== -1
+            && procInfo["episodename"] !== "unknown"
+            && procInfo["episodenumber"] !== -1) {
+            processIndex = i;
+            sendInfo(i);
+            break;
+        }
+        else{
+            Materialize.toast("skipping " + procInfo["file"] + " because the info is incomplete", 3500);
+        }
+        if (i === fileinfos.length - 1) {
+            Materialize.toast("all done!", 4000);
+        }
+    }
+}
+
+function sendInfo(index) {
+    var infoToSend = fileinfos[index];
     fetch("/api/process", {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         method: "POST",
-        body: "infos=" + JSON.stringify(fileinfos)
-    }).then(function(r){
-        processdone = false;
+        body: "infos=" + JSON.stringify([infoToSend])
+    }).then(function (r) {
         showStatus();
     });
 }
 
-var processdone = false;
-
 function showStatus() {
-    if(processdone){ return; }
-    setTimeout(showStatus, 5000);
     fetch("/api/process", {
         headers: { "Content-Type": "application/json" },
         method: "GET"
     }).then(resp => resp.json())
         .then(function (response) {
             if (!response["done"]) {
+                setTimeout(showStatus, 5000);
                 Materialize.toast(response["progress"] + "% (" + response["currentstep"] + ")", 4000);
             }
-            else{
-                processdone = true;
-                Materialize.toast("all done!", 4000);
+            else {
+                markFinished(processIndex);
+                processIndex = processIndex + 1;
+                Materialize.toast(response["currentstep"] + " processed!", 2500)
+                sendInfos();
             }
         });
+}
+
+function markFinished(index){
+    var episodeDiv = document.getElementById("ep-" + index);
+    episodeDiv.style.color = "blue";
 }
