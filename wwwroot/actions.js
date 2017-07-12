@@ -1,4 +1,6 @@
 var fileinfos = [];
+var editInfo = {};
+var editIndex = -1;
 
 function loadFiles() {
     fetch("/api/fileinfo")
@@ -36,6 +38,14 @@ function listInfos() {
         var liDiv = document.createElement("div");
         liDiv.setAttribute("id", "ep-" + i);
         liDiv.innerHTML = info["show"] + ": " + info["episodename"] + " (" + info["season"] + "x" + info["episodenumber"] + ")";
+        if(info["episodenumber"] == -1){
+            liDiv.style.color = "orange";
+            liDiv.style.fontWeight = "bold";
+        }
+        if(info["changed"] == true){
+            liDiv.style.color = "green";
+            liDiv.style.fontWeight = "bold";
+        }
         liDiv.setAttribute("onclick", "editinfo(" + i + ")");
         li.appendChild(liDiv);
         ul.appendChild(li);
@@ -43,11 +53,35 @@ function listInfos() {
 }
 
 function editinfo(i) {
+    editInfo = fileinfos[i];
     var info = fileinfos[i];
     var editDiv = document.getElementById("episodeedit");
     editDiv.setAttribute("style", "visibility:visible");
+    var fileSpan = document.getElementById("filename");
+    fileSpan.innerText = info["file"];
     var showEdit = document.getElementById("editshow");
     showEdit.setAttribute("value", info["show"]);
+    var epNameEdit = document.getElementById("editepisodename");
+    epNameEdit.setAttribute("value", info["episodename"]);
+    var seasonEdit = document.getElementById("editseasonnumber");
+    seasonEdit.setAttribute("value", info["season"]);
+    var epNoEdit = document.getElementById("editepisodenumber");
+    epNoEdit.setAttribute("value", info["episodenumber"]);
+}
+
+function saveEdit(){
+    var showName = document.getElementById("editshow").value;
+    var episodeName = document.getElementById("editepisodename").value;
+    var season = document.getElementById("editseasonnumber").value;
+    var episodeNumber = document.getElementById("editepisodenumber").value;
+
+    editInfo["show"] = showName;
+    editInfo["episodename"] = episodeName;
+    editInfo["season"] = Number(season);
+    editInfo["episodenumber"] = Number(episodeNumber);
+    editInfo["changed"] = true;
+
+    listInfos();
 }
 
 function searchShow() {

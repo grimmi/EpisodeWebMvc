@@ -63,13 +63,12 @@ type TvDbApi() =
 
     let loadShowMappings = 
         File.ReadAllLines("./shows.map")
-        |> Array.map(fun (l:string) -> match l.Split("***", StringSplitOptions.RemoveEmptyEntries) with
-                                       |[|parsed; mapped; id|] -> (parsed.Trim(),mapped.Trim(),id.Trim())
-                                       |_ -> ("","",""))
-        |> Array.filter(fun triple -> triple <> ("","",""))
+        |> Array.choose(fun (l:string) -> match l.Split("***", StringSplitOptions.RemoveEmptyEntries) with
+                                          |[|parsed; mapped; id|] -> Some (parsed.Trim(),mapped.Trim(),id.Trim())
+                                          |_ -> None)
 
     let cacheShow parsed mapped id =
-        File.AppendAllText("./shows.map", (sprintf "%s *** %s *** %d" parsed mapped id))
+        File.AppendAllText("./shows.map", (sprintf "%s%s *** %s *** %d" Environment.NewLine parsed mapped id))
 
     let getShowFromMap showName =
         let mappings = loadShowMappings

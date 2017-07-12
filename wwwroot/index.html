@@ -17,12 +17,21 @@
         <a class="waves-effect waves-light btn" href="#" onclick="sendInfos()">Dateien verarbeiten</a>
         <a class="waves-effect waves-light btn" href="#" onclick="showStatus()">Status anzeigen</a>
         <div id="episodeedit" style="display:none">
+            <label for="filename">Dateiname</label>
+            <div id="filename"></div>
             <label for="editshow">Show</label>
             <input type="text" id="editshow" />
+            <label for="editepisodename">Episodename</label>
+            <input type="text" id="editepisodename" />
+            <label for="editseasonnumber">Season</label>
+            <input type="text" id="editseasonnumber" />
+            <label for="editepisodenumber">Episode number</label>
+            <input type="text" id="editepisodenumber" />
             <a class="waves-effect waves-light btn" href="#" onclick="searchShow()">in TvDb suchen</a>
+            <a class="waves-effect waves-light btn" href="#" onclick="saveEdit()">speichern</a>
             <ul id="mappinglist" style="display:block"></ul>
         </div>
-        <div id="infolist" />
+        <div id="infolist"></div>
     </div>
 </body>
 
