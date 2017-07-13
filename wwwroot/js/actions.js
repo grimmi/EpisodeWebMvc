@@ -39,7 +39,7 @@ function listInfos() {
         var li = document.createElement("li");
         var liDiv = document.createElement("div");
         liDiv.setAttribute("id", "ep-" + i);
-        liDiv.innerHTML = info["show"] + ": " + info["episodename"] + " (" + info["season"] + "x" + info["episodenumber"] + ")";
+        liDiv.innerHTML = info["show"] + ": " + info["episodename"] + " (" + info["season"] + "x" + info["episodenumber"] + ") [" + info["file"] + "]";
         if (info["episodenumber"] == -1) {
             liDiv.classList.add("missinginfo");
             liDiv.style.color = "orange";
