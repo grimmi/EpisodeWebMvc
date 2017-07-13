@@ -1,6 +1,6 @@
 .processed
 {
-    background-image: url('check.png');
+    background-image: url('../img/check.png');
     background-repeat: no-repeat;
     background-size: 25px 22px;
     padding-left: 30px;
@@ -9,7 +9,7 @@
 
 .missinginfo
 {
-    background-image: url('warn.png');
+    background-image: url('../img/warn.png');
     background-repeat: no-repeat;
     padding-left: 30px;
     display: block;
@@ -17,8 +17,9 @@
 
 .edited
 {
-    background-image: url('edit.png');
+    background-image: url('../img/edit.png');
     background-repeat: no-repeat;
+    background-size: 26px 26px;
     padding-left: 30px;
     display: block;
 }
