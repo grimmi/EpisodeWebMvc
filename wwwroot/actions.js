@@ -41,12 +41,15 @@ function listInfos() {
         liDiv.setAttribute("id", "ep-" + i);
         liDiv.innerHTML = info["show"] + ": " + info["episodename"] + " (" + info["season"] + "x" + info["episodenumber"] + ")";
         if (info["episodenumber"] == -1) {
+            liDiv.classList.add("missinginfo");
             liDiv.style.color = "orange";
             liDiv.style.fontWeight = "bold";
         }
         if (info["changed"] == true) {
-            liDiv.style.color = "green";
-            liDiv.style.fontWeight = "bold";
+            liDiv.classList.remove("missinginfo");
+            liDiv.classList.add("edited");
+            liDiv.style.color = "blue";
+            liDiv.style.fontWeight = "italic";
         }
         liDiv.setAttribute("onclick", "editinfo(" + i + ")");
         li.appendChild(liDiv);
@@ -190,7 +193,11 @@ function showStatus() {
 
 function markFinished(index) {
     var episodeDiv = document.getElementById("ep-" + index);
-    episodeDiv.style.color = "blue";
+    episodeDiv.classList.remove("missinginfo");
+    episodeDiv.classList.remove("edited");
+    episodeDiv.classList.add("processed");
+    episodeDiv.style.fontWeight = "normal";
+    episodeDiv.style.color = "green";
 }
 
 function updateLibrary(){

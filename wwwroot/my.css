@@ -1,0 +1,24 @@
+.processed
+{
+    background-image: url('check.png');
+    background-repeat: no-repeat;
+    background-size: 25px 22px;
+    padding-left: 30px;
+    display: block;
+}
+
+.missinginfo
+{
+    background-image: url('warn.png');
+    background-repeat: no-repeat;
+    padding-left: 30px;
+    display: block;
+}
+
+.edited
+{
+    background-image: url('edit.png');
+    background-repeat: no-repeat;
+    padding-left: 30px;
+    display: block;
+}
