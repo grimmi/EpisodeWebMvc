@@ -39,20 +39,23 @@ function listInfos() {
         var li = document.createElement("li");
         var liDiv = document.createElement("div");
         liDiv.setAttribute("id", "ep-" + i);
-        liDiv.innerHTML = info["show"] + ": " + info["episodename"] + " (" + info["season"] + "x" + info["episodenumber"] + ") [" + info["file"] + "]";
+        liDiv.innerHTML = info["show"] + ": " + info["episodename"] + " (" + info["season"] + "x" + info["episodenumber"] + ") <span class='filename'>" + info["file"] + "</span>";
+        if (i % 2 == 0) {
+            liDiv.classList.add("evenrow");
+        }
+        else {
+            liDiv.classList.add("oddrow");
+        }
         if (info["episodenumber"] == -1) {
             liDiv.classList.add("missinginfo");
-            liDiv.style.color = "orange";
-            liDiv.style.fontWeight = "bold";
         }
-        else{
+        else {
             liDiv.classList.add("found");
         }
         if (info["changed"] == true) {
             liDiv.classList.remove("missinginfo");
+            liDiv.classList.remove("found");
             liDiv.classList.add("edited");
-            liDiv.style.color = "blue";
-            liDiv.style.fontWeight = "italic";
         }
         liDiv.setAttribute("onclick", "editinfo(" + i + ")");
         li.appendChild(liDiv);
@@ -61,7 +64,18 @@ function listInfos() {
 }
 
 function editinfo(i) {
-    $('#editepisode').modal('open');
+    var episodeElement = document.getElementById("ep-" + i);
+    episodeElement.classList.add("markedepisode");
+    if (i > 0) {
+        document.getElementById("ep-" + (i - 1)).scrollIntoView();
+    }
+    $('#editepisode').modal('open',{
+        dismissible: true,
+        opacity: .1,
+        inDuration: 300,
+        outDuration: 200,
+        complete: function () { unmarkEpisode(i); }
+    });
     editInfo = fileinfos[i];
     var info = fileinfos[i];
     var fileSpan = document.getElementById("filename");
@@ -74,6 +88,14 @@ function editinfo(i) {
     seasonEdit.value = info["season"];
     var epNoEdit = document.getElementById("editepisodenumber");
     epNoEdit.value = info["episodenumber"];
+}
+
+function markEpisode(i) {
+    document.getElementById("ep-" + i).classList.add("markedepisode");
+}
+
+function unmarkEpisode(i) {
+    document.getElementById("ep-" + i).classList.remove("markedepisode");
 }
 
 function saveEdit() {
@@ -181,8 +203,8 @@ function showStatus() {
         .then(function (response) {
             var currentInfo = fileinfos[processIndex];
             if (!response["done"]) {
-                setTimeout(showStatus, 5000);
-                Materialize.toast(response["progress"] + "% (" + infoString(currentInfo) + ")", 4000);
+                setTimeout(showStatus, 2500);
+                Materialize.toast(response["progress"] + "% (" + infoString(currentInfo) + ")", 2250);
             }
             else {
                 markFinished(processIndex);
@@ -197,13 +219,14 @@ function markFinished(index) {
     var episodeDiv = document.getElementById("ep-" + index);
     episodeDiv.classList.remove("missinginfo");
     episodeDiv.classList.remove("edited");
+    episodeDiv.classList.remove("found");
     episodeDiv.classList.add("processed");
-    episodeDiv.style.fontWeight = "normal";
+    episodeDiv.style.fontWeight = "bold";
     episodeDiv.style.color = "green";
 }
 
-function updateLibrary(){
-    fetch("/api/updatemedialibrary",{
+function updateLibrary() {
+    fetch("/api/updatemedialibrary", {
         method: "GET"
     });
 }
