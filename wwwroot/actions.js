@@ -45,6 +45,9 @@ function listInfos() {
             liDiv.style.color = "orange";
             liDiv.style.fontWeight = "bold";
         }
+        else{
+            liDiv.classList.add("found");
+        }
         if (info["changed"] == true) {
             liDiv.classList.remove("missinginfo");
             liDiv.classList.add("edited");
@@ -58,10 +61,9 @@ function listInfos() {
 }
 
 function editinfo(i) {
+    $('#editepisode').modal('open');
     editInfo = fileinfos[i];
     var info = fileinfos[i];
-    var editDiv = document.getElementById("episodeedit");
-    editDiv.setAttribute("style", "visibility:visible");
     var fileSpan = document.getElementById("filename");
     fileSpan.innerText = info["file"];
     var showEdit = document.getElementById("editshow");
