@@ -23,3 +23,11 @@
     padding-left: 30px;
     display: block;
 }
+
+.found
+{
+    background-image: url('../img/found.png');
+    background-repeat: no-repeat;
+    padding-left: 30px;
+    display: block;
+}
