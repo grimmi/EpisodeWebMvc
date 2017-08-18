@@ -4,3 +4,5 @@ It will
 - decoded those files
 - show media information for each file (using apis like thetvdb.com)
 - process the files (decode, rename, move)
+
+It's basically working for now but is still very crude
